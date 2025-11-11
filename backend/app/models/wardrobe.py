@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, Date, ARRAY, Text, Float
-from sqlalchemy.dialects.postgresql import UUID, VECTOR
+from sqlalchemy.dialects.postgresql import UUID
+from pgvector.sqlalchemy import Vector
 import uuid
 from datetime import date
 from app.core.database import Base
@@ -33,7 +34,7 @@ class WardrobeItem(Base):
 
     # ベクトル埋め込み (CLIP embedding - 768次元)
     # pgvector拡張が必要
-    vector_embedding = Column(VECTOR(768))
+    vector_embedding = Column(Vector(768))
 
     def __repr__(self):
         return f"<WardrobeItem {self.id} - {self.category}>"
