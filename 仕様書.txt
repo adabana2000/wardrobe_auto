@@ -1,0 +1,188 @@
+AI衣装管理・コーディネート自動化システム 仕様書
+システム概要
+手持ちの衣類をAIで管理し、天候・予定に応じて最適なコーディネートを自動提案する完全自動化システムを構築します。ローカルLLMを活用し、プライバシーを保護しながら高度な提案を実現します。
+システムアーキテクチャ
+1. コアコンポーネント
+yamlワードローブ管理層:
+  - 画像認識AI (YOLO/ViT)
+  - 衣類属性DB (PostgreSQL)
+  - メタデータ管理
+
+インテリジェンス層:
+  - ローカルLLM (Llama 3.2/Qwen2-VL)
+  - コーディネートエンジン
+  - トレンド分析モジュール
+
+外部連携層:
+  - 天気API (OpenWeatherMap)
+  - カレンダー連携 (CalDAV/Google Calendar)
+  - ECサイト検索 (楽天/Amazon API)
+
+UI/通知層:
+  - Web UI (React/Next.js)
+  - LINE/Slack通知
+  - モバイルアプリ (PWA)
+詳細機能仕様
+Phase 1: ワードローブDB構築
+画像認識パイプライン
+python処理フロー:
+1. 撮影 → 背景除去 (rembg)
+2. 衣類検出 (YOLOv8/Detectron2)
+3. 属性抽出:
+   - カテゴリ (トップス/ボトムス/アウター等)
+   - 色・パターン
+   - 素材推定
+   - ブランド (OCR)
+   - 季節適性
+4. ベクトル化 (CLIP)
+データスキーマ
+sqlCREATE TABLE wardrobe (
+    id UUID PRIMARY KEY,
+    image_path TEXT,
+    category VARCHAR(50),
+    color_primary VARCHAR(30),
+    color_secondary VARCHAR(30),
+    pattern VARCHAR(50),
+    material VARCHAR(100),
+    brand VARCHAR(100),
+    purchase_date DATE,
+    last_worn DATE,
+    wear_count INT DEFAULT 0,
+    season_tags TEXT[],
+    style_tags TEXT[],
+    care_instructions TEXT,
+    vector_embedding VECTOR(768)
+);
+Phase 2: インテリジェントコーディネート
+LLMプロンプト設計
+pythoncontext = {
+    "weather": {
+        "temp": 15,
+        "condition": "曇り",
+        "humidity": 60
+    },
+    "schedule": [
+        {"time": "10:00", "event": "社内会議"},
+        {"time": "15:00", "event": "客先訪問"}
+    ],
+    "wardrobe": get_available_items(),
+    "recent_outfits": get_last_7days_outfits()
+}
+
+prompt = """
+以下の条件で最適なコーディネートを3案提案:
+- 天候: {weather}
+- 予定: {schedule}
+- 最近の着用履歴を考慮して変化をつける
+- TPOを重視
+"""
+コーディネートルールエンジン
+
+カラーコーディネート理論 (補色/類似色)
+シーズン適合性チェック
+フォーマル度マッチング
+着回し頻度の最適化
+
+Phase 3: 不足アイテム分析・購入支援
+ギャップ分析アルゴリズム
+pythondef analyze_wardrobe_gaps():
+    # 基本アイテムチェック
+    essentials = check_basic_items()
+    
+    # スタイル別充実度
+    style_coverage = analyze_style_coverage()
+    
+    # 季節別不足分析
+    seasonal_gaps = check_seasonal_items()
+    
+    # コーディネート可能性スコア
+    versatility_score = calculate_outfit_combinations()
+    
+    return generate_recommendations()
+EC連携自動検索
+python# 楽天/Amazon APIで類似商品検索
+def search_recommendations(item_spec):
+    # CLIP埋め込みで視覚的類似検索
+    # 価格帯フィルタリング
+    # レビュースコア重み付け
+    return sorted_candidates
+技術スタック詳細
+バックエンド
+
+FastAPI - メインAPI
+Celery - バックグラウンドタスク
+Redis - キャッシュ/キュー
+PostgreSQL + pgvector - ベクトル検索対応DB
+
+AI/ML
+
+ローカルLLM:
+
+Llama 3.2 Vision (11B) - マルチモーダル対応
+またはQwen2-VL-7B-Instruct
+vLLMで高速推論
+
+
+画像認識: YOLOv8 + CLIP
+量子化: GGUF/AWQ (GPUメモリ節約)
+
+フロントエンド
+
+Next.js 14 - App Router
+Tailwind CSS + shadcn/ui
+Docker Compose - 開発環境
+
+実装ロードマップ
+Week 1-2: 基盤構築
+
+ Docker環境セットアップ
+ DB設計・マイグレーション
+ 基本API実装
+
+Week 3-4: 画像処理
+
+ 衣類撮影UI
+ 画像認識パイプライン
+ 属性抽出・DB登録
+
+Week 5-6: LLM統合
+
+ vLLMサーバー構築
+ プロンプトエンジニアリング
+ コーディネート生成ロジック
+
+Week 7-8: 外部連携
+
+ 天気API統合
+ カレンダー連携
+ EC検索機能
+
+Week 9-10: UI/UX
+
+ Web UI実装
+ 通知システム
+ PWA対応
+
+ハードウェア要件
+yaml推奨構成:
+  GPU: RTX 3090/4090 または Tesla P100 x2
+  RAM: 32GB以上
+  Storage: NVMe SSD 500GB
+
+最小構成:
+  GPU: RTX 3060 12GB
+  RAM: 16GB
+  Storage: SSD 256GB
+セキュリティ・プライバシー
+
+全データローカル保存
+API通信はTLS暗号化
+画像は暗号化ストレージ
+ユーザー認証 (Authelia/Keycloak)
+
+拡張可能性
+
+SNSトレンド分析 - Instagram/Pinterest連携
+3Dバーチャル試着 - CLO3D/Marvelous Designer
+サステナビリティ分析 - CO2フットプリント計算
+共有ワードローブ - 家族間での服の共有管理

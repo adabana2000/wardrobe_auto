@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Phase 1 基盤構築完了\n\n- プロジェクト構造とディレクトリの作成\n- Docker環境セットアップ（docker-compose.yml、Dockerfiles）\n- PostgreSQL + pgvector データベース設計\n- FastAPI バックエンド基本構造\n- Alembic マイグレーション設定\n- Next.js 14 フロントエンド基本構造\n- ML ディレクトリと依存関係準備\n- README.md と CLAUDE.md ドキュメント作成\n\n技術スタック:\n- Backend: FastAPI, PostgreSQL+pgvector, Redis, Celery\n- Frontend: Next.js 14, Tailwind CSS, TypeScript\n- ML: YOLOv8, CLIP, vLLM（Phase 2実装予定）\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

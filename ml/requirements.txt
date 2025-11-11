@@ -1,0 +1,19 @@
+# Image Processing
+torch==2.1.2
+torchvision==0.16.2
+ultralytics==8.1.0  # YOLOv8
+rembg==2.0.56  # Background removal
+Pillow==10.2.0
+opencv-python-headless==4.9.0.80
+
+# CLIP
+transformers==4.36.2
+ftfy==6.1.3
+regex==2023.12.25
+
+# vLLM (for local LLM inference)
+# Will be installed separately based on GPU configuration
+
+# Utilities
+numpy==1.26.3
+scikit-learn==1.4.0
