@@ -3,6 +3,14 @@ Pytest configuration and fixtures
 """
 
 import pytest
+import sys
+from pathlib import Path
+
+# MLモジュールのパスを追加（Docker外でのテスト用）
+ml_modules_path = Path(__file__).parent.parent.parent.parent
+if str(ml_modules_path) not in sys.path:
+    sys.path.insert(0, str(ml_modules_path))
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

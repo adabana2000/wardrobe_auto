@@ -1,13 +1,9 @@
 from app.core.celery_app import celery_app
 from app.core.database import SessionLocal
 from app.models.wardrobe import WardrobeItem
-import sys
-from pathlib import Path
 import logging
 
-# MLモジュールをインポート
-sys.path.append(str(Path(__file__).parent.parent.parent.parent / "ml"))
-
+# MLモジュールをインポート（PYTHONPATHで解決）
 from ml.image_processing.detector import ClothingDetector
 from ml.image_processing.embedder import ImageEmbedder
 from ml.image_processing.background_remover import BackgroundRemover

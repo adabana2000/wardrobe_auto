@@ -20,6 +20,9 @@ COPY . .
 # Create uploads directory
 RUN mkdir -p /app/uploads
 
+# Set Python path to include parent directory (for ml module access)
+ENV PYTHONPATH=/app:${PYTHONPATH}
+
 EXPOSE 8000
 
 # Default command (can be overridden in docker-compose)
