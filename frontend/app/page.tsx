@@ -36,35 +36,35 @@ export default function Home() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <a href="/wardrobe" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <h3 className="text-lg font-semibold mb-2">ワードローブ管理</h3>
           <p className="text-gray-600 mb-4">
             手持ちの衣類を画像認識で自動登録・管理
           </p>
-          <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-            Phase 2で実装予定
+          <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+            ✓ 実装済み
           </span>
-        </div>
+        </a>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <a href="/outfits" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
           <h3 className="text-lg font-semibold mb-2">AI コーディネート</h3>
           <p className="text-gray-600 mb-4">
             天候・予定に応じた最適なコーディネート提案
           </p>
-          <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-            Phase 2で実装予定
+          <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+            ✓ 実装済み
           </span>
-        </div>
+        </a>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-2">購入支援</h3>
+        <a href="/analysis" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-semibold mb-2">ワードローブ分析</h3>
           <p className="text-gray-600 mb-4">
-            不足アイテムの分析と最適な商品提案
+            不足アイテムの分析とギャップ検出
           </p>
-          <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
-            Phase 3で実装予定
+          <span className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+            ✓ 実装済み
           </span>
-        </div>
+        </a>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
@@ -111,14 +111,31 @@ export default function Home() {
 
       <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 text-blue-900">
-          Phase 1: 基盤構築 完了
+          実装完了機能
         </h3>
-        <ul className="list-disc list-inside text-blue-800 space-y-1">
-          <li>Docker環境セットアップ</li>
-          <li>PostgreSQL + pgvector データベース</li>
-          <li>FastAPI バックエンドAPI</li>
-          <li>Next.js フロントエンド</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 className="font-semibold text-blue-800 mb-2">✓ Phase 1-2: 基盤・画像処理</h4>
+            <ul className="list-disc list-inside text-blue-800 space-y-1 text-sm">
+              <li>Docker環境セットアップ</li>
+              <li>PostgreSQL + pgvector</li>
+              <li>YOLOv8 衣類検出</li>
+              <li>CLIP 画像埋め込み</li>
+              <li>rembg 背景除去</li>
+              <li>属性自動抽出</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold text-blue-800 mb-2">✓ Phase 3-4: AI・分析</h4>
+            <ul className="list-disc list-inside text-blue-800 space-y-1 text-sm">
+              <li>vLLM コーディネート生成</li>
+              <li>ルールエンジン</li>
+              <li>天気API統合</li>
+              <li>ワードローブギャップ分析</li>
+              <li>組み合わせ計算</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   )

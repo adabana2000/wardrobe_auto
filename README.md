@@ -151,29 +151,41 @@ docker-compose exec redis redis-cli
 ## 開発フェーズ
 
 ### ✅ Phase 1: 基盤構築（Week 1-2）- 完了
-- Docker環境セットアップ
-- PostgreSQL + pgvector データベース
-- FastAPI バックエンドAPI
-- Next.js フロントエンド基本構造
+- ✓ Docker環境セットアップ
+- ✓ PostgreSQL + pgvector データベース
+- ✓ FastAPI バックエンドAPI
+- ✓ Next.js フロントエンド基本構造
 
-### 🚧 Phase 2: 画像処理（Week 3-4）- 次の実装予定
-- [ ] 衣類撮影UI
-- [ ] YOLOv8による画像認識パイプライン
-- [ ] CLIP画像埋め込み
-- [ ] 属性抽出・DB登録機能
+### ✅ Phase 2: 画像処理（Week 3-4）- 完了
+- ✓ 画像アップロードAPI実装
+- ✓ YOLOv8による衣類検出（フォールバック対応）
+- ✓ CLIP画像埋め込み（512次元ベクトル）
+- ✓ rembg背景除去機能
+- ✓ 属性抽出（色・パターン・素材・季節・スタイル）
+- ✓ Celeryバックグラウンドタスク処理
+- ✓ DB自動登録機能
 
-### 📋 Phase 3: LLM統合（Week 5-6）
-- [ ] vLLMサーバー構築
-- [ ] プロンプトエンジニアリング
-- [ ] コーディネート生成ロジック
+### ✅ Phase 3: LLM統合（Week 5-6）- 完了
+- ✓ vLLMサーバー統合（OpenAI API互換）
+- ✓ プロンプトエンジニアリング実装
+- ✓ コーディネート生成ロジック
+- ✓ ルールベースフォールバック
+- ✓ コーディネートスコアリングエンジン
 
-### 📋 Phase 4: 外部連携（Week 7-8）
-- [ ] OpenWeatherMap API統合
-- [ ] カレンダー連携
-- [ ] 楽天/Amazon EC検索
+### ✅ Phase 4: 外部連携・分析（Week 7-8）- 完了
+- ✓ OpenWeatherMap API統合
+- ✓ 天気に基づく衣類推奨
+- ✓ ワードローブギャップ分析
+- ✓ 基本アイテムチェック
+- ✓ 季節・スタイル別カバレッジ分析
+- ✓ 組み合わせ可能性計算
 
-### 📋 Phase 5: UI/UX（Week 9-10）
-- [ ] Web UI実装
+### 🚧 Phase 5: UI/UX（Week 9-10）- 一部実装済み
+- ✓ ホームページ更新
+- [ ] ワードローブ管理画面（詳細）
+- [ ] コーディネート表示画面
+- [ ] 画像アップロードUI
+- [ ] 分析結果表示画面
 - [ ] 通知システム
 - [ ] PWA対応
 
@@ -182,12 +194,26 @@ docker-compose exec redis redis-cli
 ### エンドポイント
 
 ```
-GET  /                       - ルート
-GET  /health                 - ヘルスチェック
-GET  /api/v1/health          - 詳細ヘルスチェック（DB/Redis接続確認）
-GET  /api/v1/wardrobe        - ワードローブ一覧取得（Phase 2実装予定）
-POST /api/v1/wardrobe        - ワードローブアイテム登録（Phase 2実装予定）
-GET  /api/v1/wardrobe/{id}   - ワードローブアイテム詳細（Phase 2実装予定）
+GET  /                          - ルート
+GET  /health                    - ヘルスチェック
+GET  /api/v1/health             - 詳細ヘルスチェック（DB/Redis接続確認）
+
+# ワードローブ管理
+GET  /api/v1/wardrobe           - ワードローブ一覧取得
+POST /api/v1/wardrobe           - ワードローブアイテム手動登録
+POST /api/v1/wardrobe/upload    - 画像アップロード（AI処理）
+GET  /api/v1/wardrobe/{id}      - ワードローブアイテム詳細
+PUT  /api/v1/wardrobe/{id}      - ワードローブアイテム更新
+DELETE /api/v1/wardrobe/{id}    - ワードローブアイテム削除
+POST /api/v1/wardrobe/{id}/wear - 着用記録
+
+# コーディネート
+GET  /api/v1/outfits            - コーディネート一覧
+POST /api/v1/outfits            - コーディネート登録
+GET  /api/v1/outfits/{id}       - コーディネート詳細
+DELETE /api/v1/outfits/{id}     - コーディネート削除
+POST /api/v1/outfits/generate   - AIコーディネート生成
+PUT  /api/v1/outfits/{id}/rating - コーディネート評価
 ```
 
 ## データベーススキーマ
