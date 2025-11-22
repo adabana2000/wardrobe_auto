@@ -42,15 +42,25 @@ class SQLiteUUID(TypeDecorator):
             return uuid.UUID(value)
         return value
 
-# SQLiteTypeCompilerにvisit_UUIDメソッドを追加
+# SQLiteTypeCompilerにvisit_UUIDとvisit_ARRAYメソッドを追加
 from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
 
 def visit_UUID(self, type_, **kw):
     """SQLiteでUUID型をTEXTとしてコンパイル"""
     return "TEXT"
 
+def visit_ARRAY(self, type_, **kw):
+    """SQLiteでARRAY型をTEXT(JSON文字列)としてコンパイル"""
+    return "TEXT"
+
+def visit_VECTOR(self, type_, **kw):
+    """SQLiteでVector型をTEXT(JSON文字列)としてコンパイル"""
+    return "TEXT"
+
 # メソッドを動的に追加
 SQLiteTypeCompiler.visit_UUID = visit_UUID
+SQLiteTypeCompiler.visit_ARRAY = visit_ARRAY
+SQLiteTypeCompiler.visit_VECTOR = visit_VECTOR
 
 # テスト用のインメモリデータベース
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -69,29 +79,39 @@ def set_sqlite_pragma(dbapi_conn, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-# UUIDパラメータを文字列に変換
+# UUIDパラメータを文字列に、ARRAY/VECTORをJSON文字列に変換
 @event.listens_for(engine, "before_cursor_execute", retval=True)
 def receive_before_cursor_execute(conn, cursor, statement, params, context, executemany):
-    """UUID値を文字列に変換"""
+    """UUID、ARRAY、Vector値を変換"""
+    import json
+    import numpy as np
+
+    def convert_value(value):
+        """値を適切な形式に変換"""
+        if isinstance(value, uuid.UUID):
+            return str(value)
+        elif isinstance(value, list):
+            # リストの場合、JSON文字列に変換
+            if value and isinstance(value[0], uuid.UUID):
+                # UUIDのリスト
+                return json.dumps([str(v) for v in value])
+            else:
+                # 通常のリスト（タグなど）
+                return json.dumps(value)
+        elif isinstance(value, np.ndarray):
+            # numpyベクトルの場合、JSON文字列に変換
+            return json.dumps(value.tolist())
+        return value
+
     if isinstance(params, dict):
         new_params = {}
         for key, value in params.items():
-            if isinstance(value, uuid.UUID):
-                new_params[key] = str(value)
-            elif isinstance(value, list) and value and isinstance(value[0], uuid.UUID):
-                new_params[key] = [str(v) for v in value]
-            else:
-                new_params[key] = value
+            new_params[key] = convert_value(value)
         return statement, new_params
     elif isinstance(params, (list, tuple)):
         new_params = []
         for value in params:
-            if isinstance(value, uuid.UUID):
-                new_params.append(str(value))
-            elif isinstance(value, list) and value and isinstance(value[0], uuid.UUID):
-                new_params.append([str(v) for v in value])
-            else:
-                new_params.append(value)
+            new_params.append(convert_value(value))
         return statement, tuple(new_params) if isinstance(params, tuple) else new_params
     return statement, params
 
