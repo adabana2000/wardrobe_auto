@@ -15,7 +15,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event, TypeDecorator, String
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PostgreSQLUUID
+from sqlalchemy.dialects import sqlite
 import uuid
 
 from app.main import app
@@ -41,6 +42,16 @@ class SQLiteUUID(TypeDecorator):
             return uuid.UUID(value)
         return value
 
+# SQLiteTypeCompilerにvisit_UUIDメソッドを追加
+from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+
+def visit_UUID(self, type_, **kw):
+    """SQLiteでUUID型をTEXTとしてコンパイル"""
+    return "TEXT"
+
+# メソッドを動的に追加
+SQLiteTypeCompiler.visit_UUID = visit_UUID
+
 # テスト用のインメモリデータベース
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
@@ -50,15 +61,39 @@ engine = create_engine(
     poolclass=StaticPool,
 )
 
-# SQLiteでPostgreSQLのUUID型をStringとして扱う
+# UUIDをSQLiteで扱うためのイベントリスナー
 @event.listens_for(engine, "connect")
 def set_sqlite_pragma(dbapi_conn, connection_record):
     """SQLite接続時の設定"""
-    pass
+    cursor = dbapi_conn.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
-# PostgreSQL UUIDをSQLiteで使えるようにマッピング
-from sqlalchemy.dialects import sqlite
-sqlite.base.ischema_names['UUID'] = SQLiteUUID
+# UUIDパラメータを文字列に変換
+@event.listens_for(engine, "before_cursor_execute", retval=True)
+def receive_before_cursor_execute(conn, cursor, statement, params, context, executemany):
+    """UUID値を文字列に変換"""
+    if isinstance(params, dict):
+        new_params = {}
+        for key, value in params.items():
+            if isinstance(value, uuid.UUID):
+                new_params[key] = str(value)
+            elif isinstance(value, list) and value and isinstance(value[0], uuid.UUID):
+                new_params[key] = [str(v) for v in value]
+            else:
+                new_params[key] = value
+        return statement, new_params
+    elif isinstance(params, (list, tuple)):
+        new_params = []
+        for value in params:
+            if isinstance(value, uuid.UUID):
+                new_params.append(str(value))
+            elif isinstance(value, list) and value and isinstance(value[0], uuid.UUID):
+                new_params.append([str(v) for v in value])
+            else:
+                new_params.append(value)
+        return statement, tuple(new_params) if isinstance(params, tuple) else new_params
+    return statement, params
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
